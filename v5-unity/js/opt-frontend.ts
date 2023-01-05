@@ -384,7 +384,7 @@ export class OptFrontend extends AbstractBaseFrontend {
   executeCodeFromScratch() {
     // don't execute empty string:
     if (this.pyInputAceEditor && $.trim(this.pyInputGetValue()) == '') {
-      this.setFronendError(["Type in some code to visualize."], true);
+      this.setFronendError(["Type in code to visualize."], true);
       return;
     }
     super.executeCodeFromScratch();

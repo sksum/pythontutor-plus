@@ -791,7 +791,7 @@ var ExecutionVisualizer = /** @class */ (function () {
         var myViz = this; // to prevent confusion of 'this' inside of nested functions
         if (this.params.verticalStack) {
             this.domRoot.html('<table border="0" class="visualizer">\
-                           <tr><td class="vizLayoutTd" id="vizLayoutTdFirst""></td></tr>\
+                           <tr><td class="vizLayoutTd" id="vizLayoutTdFirst"></td></tr>\
                            <tr><td class="vizLayoutTd" id="vizLayoutTdSecond"></td></tr>\
                          </table>');
         }
@@ -799,7 +799,12 @@ var ExecutionVisualizer = /** @class */ (function () {
             this.domRoot.html('<table border="0" class="visualizer"><tr>\
                            <td class="vizLayoutTd" id="vizLayoutTdFirst"></td>\
                            <td class="vizLayoutTd" id="vizLayoutTdSecond"></td>\
-                         </tr></table>');
+                         </tr>\
+                         <tr>\
+                          <td class="vizLayoutTd" id="bc_pane"></td>\
+                          <td class="vizLayoutTd" id="ast_pane"></td>\
+                         </tr>\
+                         </table>');
         }
         // create a container for a resizable slider to encompass
         // both CodeDisplay and NavigationController
@@ -22139,6 +22144,9 @@ var AbstractBaseFrontend = /** @class */ (function () {
         $("#executeBtn")
             .attr('disabled', false)
             .click(this.executeCodeFromScratch.bind(this));
+        $("#astBtn")
+            .attr('disabled', false)
+            .click(this.executeCodeFromScratch.bind(this));
     }
     AbstractBaseFrontend.prototype.ignoreAjaxError = function (settings) { return false; }; // subclasses should override
     // empty stub so that our code doesn't crash.
@@ -22284,6 +22292,16 @@ var AbstractBaseFrontend = /** @class */ (function () {
                     // NB: why do we do this? for more detailed logging?
                     _this.myVisualizer.backendOptionsObj = backendOptionsObj;
                     _this.finishSuccessfulExecution(); // TODO: should we also run this if we're calling runTestCaseCallback?
+                    var HtmlEncode = function (s) {
+                        var el = document.createElement("div");
+                        el.innerText = el.textContent = s;
+                        s = el.innerHTML;
+                        return s;
+                    };
+                    var bc_html = "<h3> Bytecode </h3> <div>" + HtmlEncode(dataFromBackend.bytecode.replace("\n", "<br>")) + "/<div>";
+                    var ast_html = "<h3> Abstract Syntax Tree </h3>" + "<img src=\"" + "/Users/sakshammrig/Documents/ip/pathrise-python-tutor/v5-unity/Digraph.gv.png" + ">";
+                    $("#bc_pane").html(bc_html);
+                    $("#ast_pane").html(ast_html);
                 }
             }
         };
@@ -22295,6 +22313,7 @@ var AbstractBaseFrontend = /** @class */ (function () {
         var _this = this;
         var callbackWrapper = function (dataFromBackend) {
             _this.clearFrontendError(); // clear old errors first; execCallback may put in a new error:
+            console.log("\n", dataFromBackend);
             execCallback(dataFromBackend); // call the main event first
             // run this at the VERY END after all the dust has settled
             _this.doneExecutingCode(); // rain or shine, we're done executing!

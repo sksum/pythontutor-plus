@@ -791,7 +791,7 @@ var ExecutionVisualizer = /** @class */ (function () {
         var myViz = this; // to prevent confusion of 'this' inside of nested functions
         if (this.params.verticalStack) {
             this.domRoot.html('<table border="0" class="visualizer">\
-                           <tr><td class="vizLayoutTd" id="vizLayoutTdFirst""></td></tr>\
+                           <tr><td class="vizLayoutTd" id="vizLayoutTdFirst"></td></tr>\
                            <tr><td class="vizLayoutTd" id="vizLayoutTdSecond"></td></tr>\
                          </table>');
         }
@@ -799,7 +799,12 @@ var ExecutionVisualizer = /** @class */ (function () {
             this.domRoot.html('<table border="0" class="visualizer"><tr>\
                            <td class="vizLayoutTd" id="vizLayoutTdFirst"></td>\
                            <td class="vizLayoutTd" id="vizLayoutTdSecond"></td>\
-                         </tr></table>');
+                         </tr>\
+                         <tr>\
+                          <td class="vizLayoutTd" id="bc_pane"></td>\
+                          <td class="vizLayoutTd" id="ast_pane"></td>\
+                         </tr>\
+                         </table>');
         }
         // create a container for a resizable slider to encompass
         // both CodeDisplay and NavigationController

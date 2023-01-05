@@ -46,8 +46,8 @@ def index(filepath):
 def get_py_exec():
   out_s = StringIO.StringIO()
 
-  def json_finalizer(input_code, output_trace):
-    ret = dict(code=input_code, trace=output_trace)
+  def json_finalizer(input_code, output_trace, bc, ast):
+    ret = dict(code=input_code, trace=output_trace, bytecode = bc, ast = ast)
     json_output = json.dumps(ret, indent=None)
     out_s.write(json_output)
 
@@ -62,8 +62,4 @@ def get_py_exec():
   return out_s.getvalue()
 
 
-if __name__ == "__main__":
-    if os.environ.get('APP_LOCATION')=='heroku':
-        run(host='0.0.0.0', port=int(os.environ.get("PORT",5000)), reloader=True)
-    else:
-        run(host='localhost', port=5000, reloader=True)
+run(host='localhost', port=8080)

@@ -191,6 +191,9 @@ export abstract class AbstractBaseFrontend {
     $("#executeBtn")
       .attr('disabled', false)
       .click(this.executeCodeFromScratch.bind(this));
+    $("#astBtn")
+      .attr('disabled', false)
+      .click(this.executeCodeFromScratch.bind(this));
   }
 
   ignoreAjaxError(settings) {return false;} // subclasses should override
@@ -354,6 +357,16 @@ export abstract class AbstractBaseFrontend {
           // NB: why do we do this? for more detailed logging?
           (this.myVisualizer as any).backendOptionsObj = backendOptionsObj;
           this.finishSuccessfulExecution(); // TODO: should we also run this if we're calling runTestCaseCallback?
+          let HtmlEncode = (s) => {
+            var el = document.createElement("div");
+            el.innerText = el.textContent = s;
+            s = el.innerHTML;
+            return s;
+          }   
+          let bc_html = "<h3> Bytecode </h3> <div>" + HtmlEncode(dataFromBackend.bytecode.replace("\n", "<br>"))  + "/<div>"
+          let ast_html = "<h3> Abstract Syntax Tree </h3>"+`<img src="${"/Users/sakshammrig/Documents/ip/pathrise-python-tutor/v5-unity/Digraph.gv.png"}>`
+          $("#bc_pane").html(bc_html)
+          $("#ast_pane").html(ast_html)
         }
       }
     }
@@ -372,6 +385,7 @@ export abstract class AbstractBaseFrontend {
                             execCallback) {
       var callbackWrapper = (dataFromBackend) => {
         this.clearFrontendError(); // clear old errors first; execCallback may put in a new error:
+        console.log("\n", dataFromBackend)
 
         execCallback(dataFromBackend); // call the main event first
 

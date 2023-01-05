@@ -4,3 +4,4 @@ typings/
 # ignore *.png only in this directory
 /*.png
 npm-debug.log
+build/

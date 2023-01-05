@@ -409,7 +409,7 @@ export class ExecutionVisualizer {
 
     if (this.params.verticalStack) {
       this.domRoot.html('<table border="0" class="visualizer">\
-                           <tr><td class="vizLayoutTd" id="vizLayoutTdFirst""></td></tr>\
+                           <tr><td class="vizLayoutTd" id="vizLayoutTdFirst"></td></tr>\
                            <tr><td class="vizLayoutTd" id="vizLayoutTdSecond"></td></tr>\
                          </table>');
     }
@@ -417,7 +417,12 @@ export class ExecutionVisualizer {
       this.domRoot.html('<table border="0" class="visualizer"><tr>\
                            <td class="vizLayoutTd" id="vizLayoutTdFirst"></td>\
                            <td class="vizLayoutTd" id="vizLayoutTdSecond"></td>\
-                         </tr></table>');
+                         </tr>\
+                         <tr>\
+                          <td class="vizLayoutTd" id="bc_pane"></td>\
+                          <td class="vizLayoutTd" id="ast_pane"></td>\
+                         </tr>\
+                         </table>');
     }
 
     // create a container for a resizable slider to encompass

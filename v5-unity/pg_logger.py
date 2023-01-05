@@ -1626,15 +1626,20 @@ class PGLogger(bdb.Bdb):
         res.pop()
 
       self.trace = res
-
+      import dis, ast
+      from pprint import pprint
+      self.bytecode_map = dis.Bytecode(self.executed_script).dis()
+      self.ast = ast.dump(ast.parse(self.executed_script))
+      import os
+      os.system(f'python3 /Users/sakshammrig/Documents/ip/pathrise-python-tutor/python-ast-visualizer/astvisualizer.py "{self.executed_script}"')
       if self.custom_modules:
         # when there's custom_modules, call with a dict as the first parameter
         return self.finalizer_func(dict(main_code=self.executed_script,
                                         custom_modules=self.custom_modules),
-                                   self.trace)
+                                   self.trace, self.bytecode_map, self.ast)
       else:
         # common case
-        return self.finalizer_func(self.executed_script, self.trace)
+        return self.finalizer_func(self.executed_script, self.trace, self.bytecode_map, self.ast)
 
 
 import json
