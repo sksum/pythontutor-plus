@@ -43,7 +43,7 @@ export default class stack {
     let x = padding + (this.base_x + this.base_w) + this.state_elements.length * (w+padding);
     let y = this.base_y + this.base_h/2 - w/2;
     let y_font = this.base_y + this.base_h/2 + 5;
-    let box = this.rc.rectangle(x, y, w, h, { roughness: 0.5, fill: 'red' });
+    let box = this.rc.rectangle(x, y, w, h, { roughness: 0.3, fill: '#ffffc6', fillStyle:"solid" });
     this.svg.appendChild(box); 
     item = this.trimText(item, 16)
     let text = this.appendHtml(`<text x="${x}" y="${y_font}" style="font-family:"Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; font-size:${font_size}px"> ${item} </text>`, this.svg);
@@ -54,8 +54,10 @@ export default class stack {
 
   init_base () {
     let base = this.rc.rectangle(this.base_x, this.base_y, this.base_w, this.base_h, {
-      fill: 'gray',
-      stroke: 'blue',
+      fill: '#358ccb',
+      fillStyle: "solid",
+      roughness: 0.4,
+      stroke: '#358ccb',
       hachureAngle: 60,
       hachureGap: 10,
       fillWeight: 5,
@@ -64,7 +66,7 @@ export default class stack {
     this.svg.appendChild(base);
 
     let rod = this.rc.rectangle(this.base_x, this.base_y + this.base_h/2 - this.base_w/2, 2.5*this.base_h, this.base_w, {
-      stroke: 'blue',
+      stroke: 'grey',
       fillWeight: 5,
       strokeWidth: 1
     });
