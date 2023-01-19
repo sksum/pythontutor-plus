@@ -34,7 +34,7 @@ export abstract class AbstractBaseFrontend {
 
   myVisualizer: ExecutionVisualizer;
   originFrontendJsFile: string; // "abstract" -- must override in subclass
-
+  eval_stack: stack;
   // a cache where each element is a pair:
   // [appState, cached execution trace]
   // that way, if you execute the same code with the same settings again and
@@ -191,9 +191,7 @@ export abstract class AbstractBaseFrontend {
     $("#executeBtn")
       .attr('disabled', false)
       .click(this.executeCodeFromScratch.bind(this));
-    $("#astBtn")
-      .attr('disabled', false)
-      .click(this.executeCodeFromScratch.bind(this));
+
   }
 
   ignoreAjaxError(settings) {return false;} // subclasses should override
@@ -363,10 +361,10 @@ export abstract class AbstractBaseFrontend {
             s = el.innerHTML;
             return s;
           }   
-          let bc_html = "<h3> Bytecode </h3> <div>" + HtmlEncode(dataFromBackend.bytecode.replace("\n", "<br>"))  + "/<div>"
-          let ast_html = "<h3> Abstract Syntax Tree </h3>"+`<img src="${"/Users/sakshammrig/Documents/ip/pathrise-python-tutor/v5-unity/Digraph.gv.png"}>`
-          $("#bc_pane").html(bc_html)
-          $("#ast_pane").html(ast_html)
+          console.log(dataFromBackend)
+          const code = dataFromBackend.bytecode;
+          (<HTMLInputElement>document.getElementById("editor")).textContent = code;
+
         }
       }
     }

@@ -34,6 +34,7 @@ require('./lib/jquery-ui-1.11.4/jquery-ui.js');
 require('./lib/jquery-ui-1.11.4/jquery-ui.css');
 require('./lib/jquery.ba-bbq.js'); // contains slight pgbovine modifications
 require('../css/pytutor');
+import stack from './stack_manager.js';
 
 
 // for TypeScript
@@ -159,7 +160,8 @@ export class ExecutionVisualizer {
   prevLineNumber: number;
   curLineNumber: number;
   curLineExceptionMsg: string;
-
+  ast: Array<any>;
+  eval_stack: stack;
   // true iff trace ended prematurely since maximum instruction limit has
   // been reached
   instrLimitReached: boolean = false;
@@ -224,7 +226,8 @@ export class ExecutionVisualizer {
     this.curInputCode = dat.code.rtrim(); // kill trailing spaces
     this.params = params;
     this.curTrace = dat.trace;
-
+    this.ast = dat.ast
+    this.eval_stack = new stack ([], [], false);
     // postprocess the trace
     if (this.curTrace.length > 0) {
       var lastEntry = this.curTrace[this.curTrace.length - 1];
@@ -418,11 +421,8 @@ export class ExecutionVisualizer {
                            <td class="vizLayoutTd" id="vizLayoutTdFirst"></td>\
                            <td class="vizLayoutTd" id="vizLayoutTdSecond"></td>\
                          </tr>\
-                         <tr>\
-                          <td class="vizLayoutTd" id="bc_pane"></td>\
-                          <td class="vizLayoutTd" id="ast_pane"></td>\
-                         </tr>\
-                         </table>');
+                         </table>\
+                        ');
     }
 
     // create a container for a resizable slider to encompass
@@ -635,7 +635,7 @@ export class ExecutionVisualizer {
   // returns true if action successfully taken
   stepForward() {
     var myViz = this;
-
+    console.log(myViz.curLineNumber)
     if (myViz.curInstr < myViz.curTrace.length - 1) {
       // if there is a next breakpoint, then jump to it ...
       if (myViz.sortedBreakpointsList.length > 0) {
@@ -688,6 +688,20 @@ export class ExecutionVisualizer {
     }
     this.outputBox.renderOutput(this.curTrace[this.curInstr].stdout);
     this.try_hook("end_updateOutput", {myViz:this});
+    if (this.curTrace[this.curInstr].event == "opcode") {
+      var curr = this.curTrace[this.curInstr]
+      document.getElementById("editor2").textContent = `Line: ${curr["line"]} Opcode: ${curr["opcode"]}`;
+      console.log(curr.opcode) 
+      let str = curr.ev_stack
+      let list = str.slice(3, -2).replace(/</g, "&lt;").replace(/>/g, "&gt;").split("; ");
+      if (str == "b'[]'") 
+        list = []
+      this.eval_stack.erase()
+      this.eval_stack.init_stack(list)
+    }
+    // document.getElementById("editor-pre").setAttribute("data-line","10");
+
+
   }
 
   // does a LOT of stuff, called by updateOutput

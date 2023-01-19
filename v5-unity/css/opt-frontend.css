@@ -100,6 +100,7 @@ button.bigBtn {
   border: 0;
   border-radius: 8px;
   font-size: 18px;
+  display: inline;
 }
 
 button.surveyBtn {

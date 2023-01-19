@@ -38,6 +38,10 @@ import re
 import traceback
 import types
 
+import dis
+
+import get_stack
+
 # TODO: use the 'six' package to smooth out Py2 and Py3 differences
 is_python3 = (sys.version_info[0] == 3)
 
@@ -799,9 +803,51 @@ class PGLogger(bdb.Bdb):
     def get_script_line(self, n):
         return self.executed_script_lines[n-1]
 
+    def trace_dispatch(self, frame, event, arg):
+        if self.quitting:
+            return # None
+        if event == 'line':
+            return self.dispatch_line(frame)
+        if event == 'call':
+            frame.f_trace_opcodes = True
+            return self.dispatch_call(frame, arg)
+        if event == 'opcode':
+            return self.dispatch_op(frame, arg)
+        if event == 'return':
+            return self.dispatch_return(frame, arg)
+        if event == 'exception':
+            return self.dispatch_exception(frame, arg)
+        if event == 'c_call':
+            return self.trace_dispatch
+        if event == 'c_exception':
+            return self.trace_dispatch
+        if event == 'c_return':
+            return self.trace_dispatch
+        print('bdb.Bdb.dispatch: unknown debugging event:', repr(event))
+        return self.trace_dispatch
+
+    def dispatch_op(self, frame, arg):
+        if self.stop_here(frame) or self.break_here(frame):
+            self.user_op(frame, arg)
+            if self.quitting: raise bdb.BdbQuit
+        return self.trace_dispatch
+
+    def user_op(self, frame, arg):
+        if self.done: return
+        if self._wait_for_mainpyfile:
+            if ((frame.f_globals['__name__'] not in self.modules_to_trace) or
+                frame.f_lineno <= 0):
+            # older code:
+            #if (self.canonic(frame.f_code.co_filename) != "<string>" or
+            #    frame.f_lineno <= 0):
+                return
+            self._wait_for_mainpyfile = 0
+        self.interaction(frame, None, 'opcode', args = str(arg))
+
+
     # General interaction function
 
-    def interaction(self, frame, traceback, event_type):
+    def interaction(self, frame, traceback, event_type, args = None):
         self.setup(frame, traceback)
         tos = self.stack[self.curindex]
         top_frame = tos[0]
@@ -1254,7 +1300,8 @@ class PGLogger(bdb.Bdb):
                              ordered_globals=[],
                              stack_to_render=[],
                              heap={},
-                             stdout=self.get_user_stdout())
+                             stdout=self.get_user_stdout(),
+                             ev_stack = args)
         else:
           trace_entry = dict(line=lineno,
                              event=event_type,
@@ -1263,10 +1310,12 @@ class PGLogger(bdb.Bdb):
                              ordered_globals=ordered_globals,
                              stack_to_render=stack_to_render,
                              heap=self.encoder.get_heap(),
-                             stdout=self.get_user_stdout())
+                             stdout=self.get_user_stdout(),
+                             ev_stack = args)
           if encoded_probe_vals:
             trace_entry['probe_exprs'] = encoded_probe_vals
-
+        if (event_type == 'opcode') :
+          trace_entry['opcode'] = dis.opname[frame.f_code.co_code[frame.f_lasti]]
         # optional column numbers for greater precision
         # (only relevant in Py2crazy, a hacked CPython that supports column numbers)
         if self.crazy_mode:
@@ -1626,12 +1675,47 @@ class PGLogger(bdb.Bdb):
         res.pop()
 
       self.trace = res
-      import dis, ast
       from pprint import pprint
-      self.bytecode_map = dis.Bytecode(self.executed_script).dis()
-      self.ast = ast.dump(ast.parse(self.executed_script))
-      import os
-      os.system(f'python3 /Users/sakshammrig/Documents/ip/pathrise-python-tutor/python-ast-visualizer/astvisualizer.py "{self.executed_script}"')
+      import io
+      from contextlib import redirect_stdout
+
+      with io.StringIO() as buf, redirect_stdout(buf):
+          dis.dis(self.executed_script)
+          self.bytecode_map  = buf.getvalue()
+
+      import re
+
+      def parse_bytecode(input_string):
+          # Use a regular expression to extract the bytecode instructions
+          lines = input_string.split('\n')
+          instructions = []
+          for line in lines:
+            if ("Dis" in line or line.isspace()):
+              continue
+            a = line[:3]
+            b = line[3:15]
+            if (">>" in b):
+              b = b[b.find(">>") + 2 : 15]
+            c = line[16:]
+            d = ''
+            if (' ' in c):
+              l = c.split(" ", 1)
+              c = l[0]
+              d = l[1]
+            a = a.strip()
+            b = b.strip()
+            c = c.strip()
+            d = d.strip()
+            if (len(a) + len(b) + len(c) + len(d) == 0):
+              continue
+            instructions.append([a, b,c,d])
+            print (a,b,c,d)
+
+          # Create a list of dictionaries, where each dictionary represents an instruction
+          bytecode = [{'line_number':( None if offset == "" else int(offset)), 'offset': int(line_number), 'opcode': opcode, 'arguments': arguments} for offset, line_number, opcode, arguments in instructions]
+
+          return bytecode
+      self.ast = parse_bytecode(self.bytecode_map)
       if self.custom_modules:
         # when there's custom_modules, call with a dict as the first parameter
         return self.finalizer_func(dict(main_code=self.executed_script,

@@ -3,6 +3,7 @@ var WebpackOnBuildPlugin = require('on-build-webpack');
 var exec = require('child_process').exec;
 
 module.exports = {
+    mode: 'development',
     plugins: [
       // http://stackoverflow.com/questions/29080148/expose-jquery-to-real-window-object-with-webpack
       new webpack.ProvidePlugin({

@@ -12,10 +12,11 @@
   
   <meta http-equiv="Content-type" content="text/html; charset=UTF-8"/>
   <script type="text/javascript" src="build/visualize.bundle.js?ef8faad903" charset="utf-8"></script>
-
+  <link href="css/prism.css" rel="stylesheet" />
 </head>
 
 <body>
+  <script src="./js/prism.js"></script>
 <div class="s4"></div>
 
 <div class="title-container">
@@ -46,8 +47,7 @@
 
 <p>
 <button id="executeBtn" class="bigBtn" type="button">Visualize Execution</button>
-<button style="margin-left: 15%;" id="astBtn" class="smallBtn" type="button">Visualize AST</button>
-<button style="margin-left: 45%;" id="bytecodeBtn" class="smallBtn" type="button">Visualize ByteCode</button>
+
 <!-- <button style="margin-left: 20px;" id="liveModeBtn" class="bigBtn" type="button">Live Programming Mode</button> -->
 </p>
 
@@ -59,6 +59,19 @@
 <!-- </div> -->
 
 <div id="chat_div"></div>
+<div style="width: 100%; overflow: hidden;">
+  <div style=" margin-left: 15px; width: 700px; float: left;" id="bc_pane">
+   <h3> Bytecode </h3> <pre id="editor-pre"><code class="language-css" id ="editor">Bytecode will appear here 🎉</code></pre>
+ </div> 
+  <div id ="ast_pane" style="margin-left: 740px;">
+    <h3>Evaluation Stack</h3>
+    <pre id="editor-pre"><code class="language-css" id ="editor2">Current Bytecode Instruction Here 👉🏼</code></pre>
+    <!-- <button id="astBtn" class="bigBtn" type="button"> Backward </button>
+    <button id="bytecodeBtn" class="bigBtn" type="button"> Forward </button> -->
+    <svg id="canvas2" width="800" height="600"></svg>
+  </div>
+</div>
+
 
 </body>
 </html>
