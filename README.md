@@ -1,4 +1,4 @@
-Python Tutor Plus -- https://bit.ly/sksum-pt 
+Python Tutor Plus --
 -- helps people overcome a fundamental barrier to learning programming: understanding what happens as the computer executes each line of a program's source code. Using this tool, you can write Python, Java, JavaScript, TypeScript, Ruby, C, and C++ programs in your Web browser and visualize what the computer is doing step-by-step as it executes those programss
 -- Additional Functionality: Bytecode execution tracing as well as evaluations stack visualization
 
